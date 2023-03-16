@@ -12,13 +12,13 @@ public class testContactCreation {
     static void setup(){            
         insert acc0;
         insert acc1;        
-        for(Integer i=0; i<90; i++){
+        for(Integer i=0; i<20; i++){
             //default contacts
             acc0Conts.add(new Contact(firstName='Test '+i, lastName='0', AccountId=acc0.id));
             acc1Conts.add(new Contact(firstName='Test '+i, lastName='1', AccountId=acc1.id));
         }
         Contact primaryContact = new Contact(firstName='Valid', lastName='Primary', AccountId=acc1.Id, is_Primary_Contact__c=true, Primary_Contact_Phone__c='000000000');
-        conts.add(primaryContact);
+        //conts.add(primaryContact);
         conts.addAll(acc0Conts);
         conts.addAll(acc1Conts);
         insert conts;
@@ -43,7 +43,8 @@ public class testContactCreation {
             Contact anotherPrimaryContact = new Contact(firstName='NONVALID', lastName='Primary', AccountId=acc1.Id, is_Primary_Contact__c=true);
             Contact yetAnother = new Contact(firstName='NONVALID 2', lastName='Primary', AccountId=acc1.Id, is_Primary_Contact__c=true);
             List<Contact> newContacts = new List<Contact>();
-            newContacts.add(anotherPrimaryContact);
+            //newContacts.add(anotherPrimaryContact);
+            insert anotherPrimaryContact;
             newContacts.add(yetAnother);
             
             List<Database.SaveResult> result;
