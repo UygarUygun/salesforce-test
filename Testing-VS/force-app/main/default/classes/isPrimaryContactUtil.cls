@@ -19,4 +19,33 @@ public class isPrimaryContactUtil {
         update relatedContacts;
     }
     
+    
+    //sarting of logic to prevent user to create primary contact if there is any existing primary contact under account
+    public static void preventCreatePrimaryContactOnInsert(List<Contact> contactList){
+        Set<Id> accountIdSet = new Set<Id>();
+        Map<Id,Contact> accountIdContactMap = new Map<Id,Contact>();
+
+        for(Contact contactObj:contactList){
+            if(contactObj.is_Primary_Contact__c==true && contactObj.AccountID!=null){               
+                accountIdSet.add(contactObj.AccountID);
+            }
+        }
+        if(accountIdSet!=null && accountIdSet.size()>0){            
+            //Preparation of map accountIdContactMap for existing primary contact
+            for(Contact contObj:[select id,is_Primary_Contact__c,AccountId from Contact 
+                    where AccountId in:accountIdSet and is_Primary_Contact__c=true]){
+                    accountIdContactMap.put(contObj.AccountId,contObj);
+            }
+            //validation starts
+            for(Contact contactObj:contactList){
+                if(contactObj.is_Primary_Contact__c==true && contactObj.AccountID!=null
+                     && accountIdContactMap.get(contactObj.AccountId)!=null){
+                        contactObj.addError('You can\'t create more than one primary contact.');
+                    }                       
+            }
+        }        
+    }
+    
+    
+    
 }
