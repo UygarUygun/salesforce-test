@@ -11,12 +11,32 @@ public class isPrimaryContactUtil {
     }
     
     //updates all the contacts primary phone number if they are not set as the primary contact
-    public static void updateAllContactsPhone(Account acc, String PhoneNumber){
+    public static void updateAllContactsPhone(  List<Contact> insertedContacts){
+        List<Contact> contactList = new List<Contact>();
+
+        for (Contact iContact : insertedContacts){
+            if(iContact.is_Primary_Contact__c == true){
+                List<Contact> contactsToBeUpdated = [SELECT id, Primary_Contact_Phone__c FROM Contact WHERE AccountId=:iContact.AccountId];
+                for (Contact c : contactsToBeUpdated){
+                    c.Primary_Contact_Phone__c = iContact.Primary_Contact_Phone__c;
+                }
+                contactList.addAll(contactsToBeUpdated);
+            }
+            else{
+                iContact.Primary_Contact_Phone__c = [SELECT id, Primary_Contact_Phone__c FROM Contact 
+                                                    WHERE AccountId=:iContact.AccountId AND is_Primary_Contact__c=true LIMIT 1][0].Primary_Contact_Phone__c;
+            }
+        }
+
+        update contactList;
+
+        /*
         List<Contact> relatedContacts = [SELECT Id, Name FROM Contact WHERE AccountId=:acc.Id AND is_Primary_Contact__c=false];
         for (Contact cont : relatedContacts){
             cont.Primary_Contact_Phone__c = PhoneNumber;
         }
         update relatedContacts;
+        */
     }
     
     

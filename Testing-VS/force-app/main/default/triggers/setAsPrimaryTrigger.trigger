@@ -41,6 +41,7 @@ trigger setAsPrimaryTrigger on Contact (before delete,after update,before insert
     
     if(trigger.isBefore && trigger.isInsert){
         isPrimaryContactUtil.preventCreatePrimaryContactOnInsert(trigger.new);
+        isPrimaryContactUtil.updateAllContactsPhone(trigger.new);
     }
     
 }
