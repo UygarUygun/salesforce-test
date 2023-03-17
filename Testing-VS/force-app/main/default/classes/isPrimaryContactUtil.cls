@@ -36,14 +36,6 @@ public class isPrimaryContactUtil {
         }
 
         update contactList;
-
-        /*
-        List<Contact> relatedContacts = [SELECT Id, Name FROM Contact WHERE AccountId=:acc.Id AND is_Primary_Contact__c=false];
-        for (Contact cont : relatedContacts){
-            cont.Primary_Contact_Phone__c = PhoneNumber;
-        }
-        update relatedContacts;
-        */
     }
     
     
