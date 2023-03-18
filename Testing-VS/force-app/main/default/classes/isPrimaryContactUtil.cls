@@ -1,18 +1,7 @@
-public class isPrimaryContactUtil {
-    
-    //checks the accounts contacts returns true if any contact of that account is set as primary contact
-    public static Boolean hasPrimaryContact(Id accId){
-        Boolean res = false;
-        List<Contact> primaryContacts = [SELECT Id, Name FROM Contact WHERE AccountId=:accId AND is_Primary_Contact__c=true];
-        if (!primaryContacts.isEmpty()){
-        	    res=true;
-        }        
-        return res;
-    }
-    
+public class isPrimaryContactUtil {    
 
     //////////////////////////////////LEGACY ALGORTIHM I'M LEAVING IT HERE FOR COMPARISON WITH THE NEW ALGORITHM @CONTACTQUEUEABLE CLASS////////////////////////////
-
+/*
     //updates all the contacts primary phone number if they are not set as the primary contact
     public static void updateAllContactsPhone(List<Contact> insertedContacts){
         List<Contact> contactList = new List<Contact>();
@@ -42,12 +31,46 @@ public class isPrimaryContactUtil {
         }
 
         update contactList;
-    }    
+    }  
+*/  
     //////////////////////////////////END OF LEGACY ALGORTIHM I'M LEAVING IT HERE FOR COMPARISON WITH THE NEW ALGORITHM @CONTACTQUEUEABLE CLASS////////////////////////////
     
 
+    //after insertion triggers this method will update all contacts in the database by querying all contacts into two groups
+    //primaryContacts list will determine the account primary contact phone and nonPrimaryContacts will be updated with their accounts 
+    //primary contact phone number
+    public static void updateAllContactsPhone(List<Contact> insertedContacts){
+        List<Contact> primaryContacts = [SELECT Id, Name, AccountId, Primary_Contact_Phone__c FROM Contact WHERE is_Primary_Contact__c=true];
+        List<Contact> nonPrimaryContacts = [SELECT Id, Name, AccountId, Primary_Contact_Phone__c FROM Contact WHERE is_Primary_Contact__c=false];
+        Map<Id, String> accountPrimaryContactPhoneMap = new Map<Id, String>();
+
+        //map the primary contact phone of accounts
+        for (contact c : primaryContacts){
+            accountPrimaryContactPhoneMap.put(c.AccountId, c.Primary_Contact_Phone__c);
+
+        }
+
+        //check every nonprimary contacts related account for a primary contact phone, if it exists update their respective fields
+        for (Contact c : nonPrimaryContacts){
+            try{
+                c.Primary_Contact_Phone__c = accountPrimaryContactPhoneMap.get(c.AccountId);
+            }
+            catch(Exception e){
+                System.debug('No primary contact set for this contacts account');
+            }
+        }      
+        
+        try{
+            update nonPrimaryContacts;
+            System.debug('Contact inserted');
+        }
+        catch(Exception e){
+            System.debug('Contact can not be inserted: ' + e.getMessage());
+        }
+    }
+
     
-    //srting of logic to prevent user to create primary contact if there is any existing primary contact under account
+    //sorting of logic to prevent user to create primary contact if there is any existing primary contact under account
     public static void preventCreatePrimaryContactOnInsert(List<Contact> contactList){
         Set<Id> accountIdSet = new Set<Id>();
         Map<Id,Contact> accountIdContactMap = new Map<Id,Contact>();
