@@ -6,8 +6,10 @@ trigger setAsPrimaryTrigger on Contact (before delete,after update,before insert
     
     if(trigger.isBefore && trigger.isInsert){
         isPrimaryContactUtil.preventCreatePrimaryContactOnInsert(trigger.new);
-        isPrimaryContactUtil.updateAllContactsPhone(trigger.new);
+        //isPrimaryContactUtil.updateAllContactsPhone(trigger.new);
         //Database.executeBatch(new ContactUpdateBatch(trigger.new));
+        ContactQueueable updateRelatedContacts = new ContactQueueable(trigger.new);
+        Id jobId = System.enqueueJob(updateRelatedContacts);
     }
     
 }

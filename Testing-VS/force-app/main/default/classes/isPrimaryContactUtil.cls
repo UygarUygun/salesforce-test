@@ -10,19 +10,25 @@ public class isPrimaryContactUtil {
         return res;
     }
     
+
+    //////////////////////////////////LEGACY ALGORTIHM I'M LEAVING IT HERE FOR COMPARISON WITH THE NEW ALGORITHM @CONTACTQUEUEABLE CLASS////////////////////////////
+
     //updates all the contacts primary phone number if they are not set as the primary contact
-    public static void updateAllContactsPhone(  List<Contact> insertedContacts){
+    public static void updateAllContactsPhone(List<Contact> insertedContacts){
         List<Contact> contactList = new List<Contact>();
 
         for (Contact iContact : insertedContacts){
             //update related contacts primary contact phone field with the current contacts primary contact phone field value
             if(iContact.is_Primary_Contact__c == true){
+                
+                //TODO: take this query out of for loop
                 List<Contact> contactsToBeUpdated = [SELECT id, Primary_Contact_Phone__c FROM Contact WHERE AccountId=:iContact.AccountId];
                 for (Contact c : contactsToBeUpdated){
                     c.Primary_Contact_Phone__c = iContact.Primary_Contact_Phone__c;
                 }
                 contactList.addAll(contactsToBeUpdated);
             }
+
             //autopopulate current contacts primary contact phone field with the primary contact of its related accounts primary contact phone value
             else{
                 try{
@@ -36,10 +42,12 @@ public class isPrimaryContactUtil {
         }
 
         update contactList;
-    }
+    }    
+    //////////////////////////////////END OF LEGACY ALGORTIHM I'M LEAVING IT HERE FOR COMPARISON WITH THE NEW ALGORITHM @CONTACTQUEUEABLE CLASS////////////////////////////
     
+
     
-    //sarting of logic to prevent user to create primary contact if there is any existing primary contact under account
+    //srting of logic to prevent user to create primary contact if there is any existing primary contact under account
     public static void preventCreatePrimaryContactOnInsert(List<Contact> contactList){
         Set<Id> accountIdSet = new Set<Id>();
         Map<Id,Contact> accountIdContactMap = new Map<Id,Contact>();
@@ -64,6 +72,8 @@ public class isPrimaryContactUtil {
             }
         }        
     }
+
+    //
     
     
 }
