@@ -21,6 +21,7 @@ public class opportunitySummaryBatch implements Database.Batchable<sObject>, Dat
 
             //[0] is open, [1] is closed won, [2] is closed lost
             List<Decimal> oppAmountsByStage = new List<Decimal>();
+            oppAmountsByStage.add(0);oppAmountsByStage.add(0);oppAmountsByStage.add(0);
 
             for (Opportunity opp: acc.Opportunities){
                 //Summarize the opp amounts by stage
@@ -35,21 +36,29 @@ public class opportunitySummaryBatch implements Database.Batchable<sObject>, Dat
             
             //save oppAmounts summary and primary contact mail in a map
             accountOppsSummarized.put(acc.Id, oppAmountsByStage);
-            accountPrimaryContactMailMap.put(acc.Id, acc.Contacts[0].Email);
+            try{
+                accountPrimaryContactMailMap.put(acc.Id, acc.Contacts[0].Email);
+            } catch (Exception e){
+                System.debug('Contact allocation error: ' + e.getMessage());
+            }
         }
 
     }
     public void finish(Database.BatchableContext bc){
         // send emails through some util class to respective classes
-        /*
+        
         AsyncApexJob job = [SELECT Id, Status, NumberOfErrors,
             JobItemsProcessed,
             TotalJobItems, CreatedBy.Email
             FROM AsyncApexJob
             WHERE Id = :bc.getJobId()];
-        */
+        System.debug(job);
         for(Account a : allAccounts){
-            EmailUtil.sendOppSummaryEmail(a.Name, accountOppsSummarized.get(a.Id), accountPrimaryContactMailMap.get(a.Id));
+            try{
+                EmailUtil.sendOppSummaryEmail(a.Name, accountOppsSummarized.get(a.Id), accountPrimaryContactMailMap.get(a.Id));
+            } catch (Exception e){
+                System.debug('Email send error' + e.getMessage());
+            }
         }
     }
 }
