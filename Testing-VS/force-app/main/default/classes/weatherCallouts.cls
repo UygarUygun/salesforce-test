@@ -1,10 +1,11 @@
 public class weatherCallouts {
 
     private static String APIKEY = 'bb5654fe7257c497c08673677c9e11dd'; 
+    public static Map<String, Object> weatherDataResponseMap = new Map<String, Object>();
 
     //returns the map of information we need to display on the page, makes a http get request by city name
     public static /*Map<String, Object>*/ HttpResponse weatherInfoGetCallout(String cityName){
-        Map<String, Object> weatherDataResponseMap = new Map<String, Object>();
+        
 
         String calloutMsg = 'https://api.openweathermap.org/data/2.5/weather?q=' + cityName + '&appid=' + APIKEY;
         Http http = new Http();
