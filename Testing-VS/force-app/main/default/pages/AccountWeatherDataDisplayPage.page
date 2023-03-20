@@ -1,0 +1,38 @@
+<apex:page standardController="Account" extensions="AccountWeatherDataPageController">
+    <script>
+        window.onload = function () {
+            saveBillingCity();
+            calculateWeatherData();
+        }
+    </script>
+
+    <apex:form >
+        <apex:actionFunction name="saveBillingCity" action="{!saveBillingCity}" reRender="none">
+            <apex:param name="billingCityParam" value="{!Account.BillingCity}" />
+        </apex:actionFunction>
+        <apex:actionFunction name="calculateWeatherData" action="{!calculateWeatherData}" reRender="temperaturePanel, descriptionPanel, iconPanel"
+        />
+    </apex:form>
+
+    <apex:pageBlock title="Wheather in {!Account.BillingCity}">
+        <apex:pageBlockSection >
+            <apex:outputPanel id="temperaturePanel">
+                <apex:outputText rendered="{!temperature != null}" value="The temperature in {!Account.BillingCity} is {!temperature}°C."
+                />
+            </apex:outputPanel>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection >
+            <apex:outputPanel id="descriptionPanel">
+                <apex:outputText rendered="{!description != null}" value="Description: {!description}" />
+            </apex:outputPanel>
+        </apex:pageBlockSection>
+        <apex:pageBlockSection >
+            <apex:outputPanel id="iconPanel">
+                <apex:outputLink rendered="{!iconUrl != null}" value="{!iconUrl}">
+                    <apex:image value="{!iconUrl}" />
+                </apex:outputLink>
+            </apex:outputPanel>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+
+</apex:page>
